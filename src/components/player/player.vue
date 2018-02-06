@@ -1,29 +1,29 @@
 <template>
-    <div class="player-control">
-        <div class="background">
-            <img src="../../assets/logo.png" alt="" >
-        </div>
-
-        <div class="mod-song-control grid">
-            <progressBar :percent="percent" />
-            <ul class="action row" style="list-style: none;display: flex; align-items: center;justify-content: space-between">
-                <li class="iconfont icon-loop col-3 iconmode" style="text-align: left;"></li>
-                <li class="col-6 iconcenter">
-                    <div class="iconfont icon-prev"></div>
-                    <div class="iconfont icon-play-pause" :class="playIcon" @click="togglePlaying"></div>
-                    <div class="iconfont icon-next"></div>
-                    <div class="play-loading" style="display: none;"></div>
-                </li>
-                <li class="iconfont icon-list col-3" style="text-align: right"></li>
-            </ul>
-        </div>
-        <audio ref="audio" src="../../assets/m1.mp4" @timeupdate="updateTime">您的浏览器不支持</audio>
+  <div class="player-control">
+    <div class="background">
+      <img src="../../assets/logo.png" alt="">
     </div>
+
+    <div class="mod-song-control grid">
+      <progressBar :percent="percent" @percentChange="onProgressBarChange" />
+      <ul class="action row" style="list-style: none;display: flex; align-items: center;justify-content: space-between">
+        <li class="iconfont icon-loop col-3 iconmode" style="text-align: left;"></li>
+        <li class="col-6 iconcenter">
+          <div class="iconfont icon-prev"></div>
+          <div class="iconfont icon-play-pause" :class="playIcon" @click="togglePlaying"></div>
+          <div class="iconfont icon-next"></div>
+          <div class="play-loading" style="display: none;"></div>
+        </li>
+        <li class="iconfont icon-list col-3" style="text-align: right"></li>
+      </ul>
+    </div>
+    <audio ref="audio" src="../../assets/m1.mp4" @timeupdate="updateTime">您的浏览器不支持</audio>
+  </div>
 </template>
 <script>
-import progressBar from '../../base/progressBar/progressBar'
+import progressBar from "../../base/progressBar/progressBar";
 export default {
-  components:{
+  components: {
     progressBar
   },
   data() {
@@ -48,12 +48,19 @@ export default {
       this.playing = !this.playing;
     },
     updateTime(e) {
+      console.log("歌曲进度(秒) >>> ", e.target.currentTime);
       this.currentTime = e.target.currentTime;
     },
     progressClick(e) {
       const programPrecent = (e.clientX - (375 - 269) / 2) / 269;
       const currentTime = programPrecent * 241;
       this.$refs.audio.currentTime = currentTime;
+      if (!this.playing) {
+        this.togglePlaying();
+      }
+    },
+    onProgressBarChange(percent) {
+      this.$refs.audio.currentTime = 241 * percent;
       if (!this.playing) {
         this.togglePlaying();
       }
@@ -81,10 +88,10 @@ export default {
   -webkit-filter: blur(20px);
   filter: blur(20px);
 }
-.background img{
-    display: block;
-    width: 100%;
-    height: 100%;
+.background img {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .icon-list:before {
   content: "\e603";
@@ -230,8 +237,6 @@ export default {
   font-size: 1.4rem;
   margin-right: -9px;
 }
-
-
 
 .mod-song-control .action {
   padding-top: 12px;

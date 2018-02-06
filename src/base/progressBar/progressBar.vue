@@ -2,9 +2,9 @@
     <div class="progress-wrapper">
         <span class="ticker cur">7:17</span>
         <div class="progress">
-            <div class="bar noUi-target noUi-ltr noUi-horizontal noUi-connect" @click="progressClick" :style="{left: percent+'%'}">
+            <div class="bar noUi-target noUi-ltr noUi-horizontal noUi-connect" ref="progress" @click="progressClick" @touchstart.prevent="progressTouchStart" @touchmove.prevent="progressTouchMove" @touchend="progressTouchEnd">
                 <div class="noUi-base">
-                    <div class="noUi-origin noUi-background" ref="progressBar" >
+                    <div class="noUi-origin noUi-background" ref="progressBar" style="left: 0%" >
                         <div class="noUi-handle noUi-handle-lower"></div>
                     </div>
                 </div>
@@ -14,7 +14,10 @@
     </div>
 </template>
 <script>
-const progressPointWidth = 5//进度条按钮宽度10px (left:-5px)
+const progressPointWidth = 5; //进度条按钮宽度10px (left:-5px)
+let _touchStarX = 0;
+let _touchMovingX = 0;
+let _touchEndX = 0;
 export default {
   data() {
     return {};
@@ -25,23 +28,57 @@ export default {
       default: 0
     }
   },
+  watch: {
+      //:style="{left: percent+'%'}"
+    percent(newVal) {
+      if (newVal >= 0 && !this.touch.initiated) {
+          const offsetWidth = (newVal/100) * this.$refs.progress.clientWidth;
+          this._offset(offsetWidth)
+      }
+    }
+  },
   methods: {
-    _offset(offsetWidth){
-        this.$refs.progressBar.style.left=`${offsetWidth}px`
+    _offset(offsetWidth) {
+        console.log('_offset offsetWidth',offsetWidth)
+      this.$refs.progressBar.style.left = `${offsetWidth}px`;
+    },
+    _triggerPercent() {
+      const percent = this.$refs.progressBar.style.left.replace('px','') / this.$refs.progress.clientWidth
+      this.$emit("percentChange", percent);
     },
     progressClick(e) {
-      const rect =  this.$refs.progressBar.getBoundingClientRect()
-
-      console.log('rect',rect);
-      console.log('clientWidth',this.$refs.progressBar.clientWidth);
-
-      const offsetWidth =  e.clientX - rect.left;
-
-      this._offset(offsetWidth)
-    //   const currentTime = programPrecent * 241;
-    //   this.$emit("percentChange");
+      const rect = this.$refs.progress.getBoundingClientRect();
+      const offsetWidth = e.clientX - rect.left;
+      this._offset(offsetWidth);
+      this._triggerPercent(percent);
+    },
+    progressTouchStart(e) {
+      console.log(e);
+      this.touch.initiated = true;
+      _touchStarX = e.touches[0].pageX;
+    },
+    progressTouchMove(e) {
+      console.log(e);
+      if (!this.touch.initiated) return;
+      _touchMovingX = e.touches[0].pageX;
+      const rect = this.$refs.progress.getBoundingClientRect();
+      const offsetWidth = Math.min(
+        e.touches[0].pageX - rect.left,
+        this.$refs.progress.clientWidth
+      );
+      this._offset(offsetWidth);
+    },
+    progressTouchEnd(e) {
+      console.log(e);
+      this.touch.initiated = false;
+      const rect = this.$refs.progress.getBoundingClientRect();
+      const offsetWidth = _touchMovingX - rect.left;
+      this._triggerPercent(percent);
     }
-  }
+  },
+  created(){
+        this.touch = {}
+    }
 };
 </script>
 <style>
@@ -73,7 +110,7 @@ export default {
   -webkit-box-flex: 1;
   -webkit-flex: 1;
   flex: 1;
-  padding: 0 6px;
+  padding: 0 12px;
 }
 
 .mod-song-control .progress-wrapper .progress .bar {
