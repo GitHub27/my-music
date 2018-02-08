@@ -17,7 +17,14 @@
         <li class="iconfont icon-list col-3" style="text-align: right"></li>
       </ul>
     </div>
-    <audio ref="audio" src="../../assets/m1.mp4" @timeupdate="updateTime">您的浏览器不支持</audio>
+    <audio 
+      ref="audio" 
+      src="../../assets/m1.mp4" 
+      @timeupdate="updateTime"
+      @play="ready" 
+      @error="error"
+      @ended="ended"
+      >您的浏览器不支持</audio>
   </div>
 </template>
 <script>
@@ -44,12 +51,23 @@ export default {
     }
   },
   methods: {
-    togglePlaying() {
-      this.playing = !this.playing;
-    },
+    
     updateTime(e) {
       console.log("歌曲进度(秒) >>> ", e.target.currentTime);
       this.currentTime = e.target.currentTime;
+    },
+    ready(){
+      console.log("歌曲状态：ready");
+    },
+    ended(){
+      console.log("歌曲结束");
+      this.playing=false;
+    },
+    error(){
+      console.log("歌曲状态:error");
+    },
+    togglePlaying() {
+      this.playing = !this.playing;
     },
     progressClick(e) {
       const programPrecent = (e.clientX - (375 - 269) / 2) / 269;

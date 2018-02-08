@@ -1,6 +1,8 @@
 <template>
   <div>
     <Rating :grade=2 />
+    {{ $route.params.id }}
+    <router-view></router-view>
   </div>
 </template>
 <script>

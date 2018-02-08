@@ -6,20 +6,19 @@ const HelloWorld = r => require.ensure([], () => r(require('@/components/HelloWo
 const postCss = r => require.ensure([], () => r(require('@/views/postCss')), 'postCss')
 const awesomeIcons = r => require.ensure([], () => r(require('@/views/awesomeIcons')), 'awesomeIcons')
 
-
+import childRouter from '@/components/child-router'
 
 Vue.use(Router)
 
 export default new Router({
-  routes: [
-    {
+  routes: [{
       path: '/',
       name: 'HelloWorld',
       component: HelloWorld
     },
     {
-      path:'/asyncComponent',
-      name:'asyncComponent',
+      path: '/asyncComponent',
+      name: 'asyncComponent',
       component: asyncComponent
     },
     {
@@ -28,9 +27,13 @@ export default new Router({
       component: postCss
     },
     {
-      path: '/awesomeIcons',
+      path: '/awesomeIcons/:id',
       name: 'awesomeIcons',
-      component: awesomeIcons
+      component: awesomeIcons,
+      children: [{
+        path: 'a',
+        component: childRouter
+      }]
     }
   ]
 })

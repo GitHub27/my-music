@@ -14,7 +14,6 @@
     </div>
 </template>
 <script>
-const progressPointWidth = 5; //进度条按钮宽度10px (left:-5px)
 let _touchStarX = 0;
 let _touchMovingX = 0;
 let _touchEndX = 0;
@@ -39,7 +38,6 @@ export default {
   },
   methods: {
     _offset(offsetWidth) {
-        console.log('_offset offsetWidth',offsetWidth)
       this.$refs.progressBar.style.left = `${offsetWidth}px`;
     },
     _triggerPercent() {
@@ -50,30 +48,27 @@ export default {
       const rect = this.$refs.progress.getBoundingClientRect();
       const offsetWidth = e.clientX - rect.left;
       this._offset(offsetWidth);
-      this._triggerPercent(percent);
+      this._triggerPercent();
     },
     progressTouchStart(e) {
-      console.log(e);
       this.touch.initiated = true;
       _touchStarX = e.touches[0].pageX;
     },
     progressTouchMove(e) {
-      console.log(e);
       if (!this.touch.initiated) return;
       _touchMovingX = e.touches[0].pageX;
       const rect = this.$refs.progress.getBoundingClientRect();
       const offsetWidth = Math.min(
-        e.touches[0].pageX - rect.left,
+        Math.max(e.touches[0].pageX , rect.left)-rect.left,
         this.$refs.progress.clientWidth
       );
       this._offset(offsetWidth);
     },
     progressTouchEnd(e) {
-      console.log(e);
       this.touch.initiated = false;
       const rect = this.$refs.progress.getBoundingClientRect();
       const offsetWidth = _touchMovingX - rect.left;
-      this._triggerPercent(percent);
+      this._triggerPercent();
     }
   },
   created(){
